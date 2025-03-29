@@ -8,57 +8,49 @@ function main() {
     const fov = 75;
     const aspect = 2;
     const near = 0.1;
-    const far = 5
+    const far = 10
     const camera = new THREE.PerspectiveCamera(fov, aspect, near, far)
-    camera.position.z = 2;
+    camera.position.z = 3
+    // camera.position.y = 3
+    camera.position.x = 3
+    camera.lookAt(0,0,0)
     const scene = new THREE.Scene()
 
-    // Make our box
-    // const boxWidth = 1;
-    // const boxHeight = 1;
-    // const boxDepth = 1;
-    // const box_geometry = new THREE.BoxGeometry(boxWidth, boxHeight, boxDepth);
-
-    // Make a plane
-    const planeWidth = 1
-    const planeHeight = 1
-    const plane_geometry = new THREE.BoxGeometry(planeWidth, planeHeight, 0.001)
-
-    // Define the colors of the "plane"
-    // the last two are the front and back of the "plane"
-    const materials = [
-        new THREE.MeshBasicMaterial({color: 0xFFFFFF}),
-        new THREE.MeshBasicMaterial({color: 0xFF0000}),
-        new THREE.MeshBasicMaterial({color: 0xFFFFFF}),
-        new THREE.MeshBasicMaterial({color: 0xFFFFFF}),
-        new THREE.MeshBasicMaterial({color: 0xFF0000}),
-        new THREE.MeshBasicMaterial({color: 0xFFFFFF}),
-      ];
-
     // Make a light
-    const color = 0xFFFFFF;
-    const intensity = 3;
-    const light = new THREE.DirectionalLight(color, intensity);
+    const light = new THREE.AmbientLight( 0xFFFFFF );
     light.position.set(-1, 2, 4);
+    const axesHelper = new THREE.AxesHelper( 5 );
+    scene.add( axesHelper );
+    let vertices = new Float32Array([
+        1.0, 0, 0,    // vertex 1
+        0, 1.0, 0,     // vertex 2
+        -1.0, 0, 0,      // vertex 3
+    ]);
     
+    const geometry = new THREE.BufferGeometry();
+    geometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
+    const material = new THREE.MeshBasicMaterial({ color: 'red' , side:THREE.DoubleSide});
+    const triangle = new THREE.Mesh(geometry, material);
+    scene.add(triangle);
 
+    let verticesTwo = new Float32Array([
+        1.0, 0, 0,    // vertex 1
+        0, -1.0, 0,     // vertex 2
+        -1.0, 0, 0,      // vertex 3
+    ]);
+    
+    const geometryTwo = new THREE.BufferGeometry();
+    geometryTwo.setAttribute('position', new THREE.BufferAttribute(verticesTwo, 3));
+    const materialTwo = new THREE.MeshBasicMaterial({ color: 'red', side:THREE.DoubleSide });
+    const triangleTwo = new THREE.Mesh(geometryTwo, materialTwo);
+    scene.add(triangleTwo);
 
-
-    function makeInstance(geometry, color, x, materials){
-        // const material = new THREE.MeshBasicMaterial({color})
-
-        const instance = new THREE.Mesh(geometry, materials)
-        instance.position.x = x;
-        return instance
-    }
-
-    // const cubes = [
-    //     makeInstance(box_geometry, 0x44aa88,  0),
-    //     makeInstance(box_geometry, 0x8844aa, -2),
-    //     makeInstance(box_geometry, 0xaa8844,  2),
-    // ];
-
-    const plane = makeInstance(plane_geometry, 0x8844aa, 0, materials)
+    // now let's make a shape that combines all of these
+    // let combinedVerticies = new Float32Array([...verticies, ...verticesTwo])
+    // const combinedGeo = new THREE.BufferGeometry();
+    // combinedGeo.setAttribute('position', new THREE.BufferAttribute(combinedVerticies, 6));
+    // const combined = new THREE.Mesh(combinedGeo, materialTwo);
+    // scene.add(combinedGeo);
 
     function resizeRendererToDisplaySize(renderer){
         const canvas = renderer.domElement;
@@ -87,14 +79,19 @@ function main() {
         // cube.rotation.x = rot;
         // cube.rotation.y = rot;
         // })
+        // triangle.rotation.x = time * .5
+        // // triangle.rotation.y = time * .01
+        // // triangle.rotation.z = time * .01
 
-        plane.rotation.x = time * .5
-        plane.rotation.z = time * .5
+        // triangleTwo.rotation.x = time * -.5
+        // if triangle && triangleTwo
+        // triangle.rotation.x = time * .5
+        // triangleTwo.rotation.x = time * -.5
 
-        // scene.add(...cubes, light);
-        scene.add(plane, light)
         renderer.render(scene, camera)
-
+        if ((triangle.rotation.x === -triangleTwo.rotation.x) && (triangle.rotation.x > Math.PI / 2)){
+            return
+        }
         requestAnimationFrame(render)
     }
     requestAnimationFrame(render)
